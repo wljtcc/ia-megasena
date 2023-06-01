@@ -1,7 +1,13 @@
 import requests
+import json
+import numpy as np
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense
 import tensorflow as tf
+
+# Specify the path to your JSON file
+JSON_FILE = 'loteria-mega-sena.json'
+
 
 def aprendiz(sequencia):
 
@@ -32,6 +38,40 @@ def aprendiz(sequencia):
     # Salvar o modelo
     modelo.save('modelo.h5')
 
+def aprendiz2(sequencia):
+
+    # Sequência de entrada e saída
+
+    # Preparar os dados de treinamento
+    X = []
+    y = []
+    n_steps = 6  # Número de passos anteriores para usar na previsão
+    for i in range(len(sequencia) - n_steps):
+        X.append(sequencia[i:i+n_steps])
+        y.append(sequencia[i+n_steps:i+n_steps+6])
+
+    X = np.array(X)
+    y = np.array(y)
+
+    # Criar o modelo de rede neural recorrente (LSTM)
+    modelo = Sequential()
+    modelo.add(LSTM(32, input_shape=(n_steps, 1)))
+    modelo.add(Dense(6))
+
+    # Compilar o modelo
+    modelo.compile(loss='mean_squared_error', optimizer='adam')
+
+    # Treinar o modelo
+    modelo.fit(X, y, epochs=10, batch_size=1, verbose=2)
+
+    # Salvar o modelo
+    # modelo.save('modelo.h5')
+
+    # Prever os próximos seis números
+    ultimos_numeros = sequencia[-n_steps:]
+    proximo_numeros = modelo.predict(np.array([ultimos_numeros]))
+    print("Próximos seis números na sequência:", proximo_numeros.flatten().astype(int).tolist())
+
 
 
 def nextNumber(sequencia):
@@ -45,9 +85,12 @@ def nextNumber(sequencia):
 
 def carregar_jogos_mega_sena():
     loteria = 'mega-sena'
-    url = f"https://loteriascaixa-api.herokuapp.com/api/" + loteria
-    response = requests.get(url)
-    data = response.json()
+    # url = f"https://loteriascaixa-api.herokuapp.com/api/" + loteria
+    # response = requests.get(url)
+    # data = response.json()
+
+    with open(JSON_FILE, 'r') as file:
+        data = json.load(file)
 
     jogos = []
 
@@ -78,5 +121,6 @@ ALL_GAMES = carregar_jogos_mega_sena()
 
 # Treinando
 #aprendiz(ALL_GAMES)
+aprendiz2(ALL_GAMES)
 
-nextNumber(ALL_GAMES)
+# nextNumber(ALL_GAMES)
