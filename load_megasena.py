@@ -58,7 +58,7 @@ def carregar_jogos_mega_sena():
         jogos.append((data_sorteio, numeros))
 
     todos = []
-    
+
     # Exibindo os jogos
     for jogo in jogos:
         data, numeros = jogo
@@ -77,6 +77,6 @@ def carregar_jogos_mega_sena():
 ALL_GAMES = carregar_jogos_mega_sena()
 
 # Treinando
-aprendiz(ALL_GAMES)
+#aprendiz(ALL_GAMES)
 
 nextNumber(ALL_GAMES)
