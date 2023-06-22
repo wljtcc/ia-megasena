@@ -1,12 +1,18 @@
 import requests
+import os
 import json
 import numpy as np
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense
 import tensorflow as tf
 
+# Para windows, executar: export TF_CPP_MIN_LOG_LEVEL=2
+
+# Loteria (mega-sena | quina)
+LOTERIA = 'quina'
+
 # Specify the path to your JSON file
-JSON_FILE = 'loteria-mega-sena.json'
+JSON_FILE = f'{LOTERIA}.json'
 
 
 def aprendiz(sequencia):
@@ -62,10 +68,10 @@ def aprendiz2(sequencia):
     modelo.compile(loss='mean_squared_error', optimizer='adam')
 
     # Treinar o modelo
-    modelo.fit(X, y, epochs=10, batch_size=1, verbose=2)
+    modelo.fit(X, y, epochs=100, batch_size=1, verbose=2)
 
     # Salvar o modelo
-    # modelo.save('modelo.h5')
+    modelo.save('modelo.h5')
 
     # Prever os próximos seis números
     ultimos_numeros = sequencia[-n_steps:]
@@ -83,8 +89,8 @@ def nextNumber(sequencia):
     proximo_numero = modelo.predict([[ultimo_numero]])
     print("Próximo número na sequência:", int(proximo_numero))
 
-def carregar_jogos_mega_sena():
-    loteria = 'mega-sena'
+def carregar_jogos_loterias(LOTERIA):
+    loteria = LOTERIA
     # url = f"https://loteriascaixa-api.herokuapp.com/api/" + loteria
     # response = requests.get(url)
     # data = response.json()
@@ -117,7 +123,7 @@ def carregar_jogos_mega_sena():
     return todos
 
 # Testando a função
-ALL_GAMES = carregar_jogos_mega_sena()
+ALL_GAMES = carregar_jogos_loterias(LOTERIA)
 
 # Treinando
 #aprendiz(ALL_GAMES)
